@@ -50,7 +50,7 @@ function init(jsonName) {
             color: "#088"
           },
           onBeforeCompute: function (node) {
-            Log.write("centering");
+            Log.write("centering " + node.name + "...");
           },
           //Attach event handlers and add text to the
           //labels. This method is only triggered on label
