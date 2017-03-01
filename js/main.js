@@ -11,93 +11,92 @@ var Log = {
 
 function init(jsonName) {
   document.querySelector("#infovis").innerHTML = '';
-  fetch('json/' + jsonName + '.json')
-    .then(function (res) {
-      return res.json();
-    })
-    .then(function (json) {
-      var data = json.diagram.elements;
-      var traverseData = function (data) {
-        if (!data || !data.title) {
-          return;
-        }
-        data.name = data.title;
-        data.children.forEach(function (child) {
-          traverseData(child);
-        });
-      };
-      traverseData(data);
-      return data;
-    })
-    .then(function (json) {
+  var xhr = new XMLHttpRequest();
+  xhr.onreadystatechange=function () {
+    if(xhr.readyState==4){
+      if((xhr.status >=200 && xhr.status<300) ||xhr.status ==304){
+        var json = JSON.parse(xhr.responseText);
 
-      var ht = new $jit.Hypertree({
-        //id of the visualization container
-        injectInto: 'infovis',
-        //Add navigation capabilities:
-        //zooming by scrolling and panning.
-        Navigation: {
-          enable: true,
-          panning: true,
-          zooming: 10
-        },
-        //Change node and edge styles such as
-        //color, width and dimensions.
-        Node: {
-          dim: 9,
-          color: "#f00"
-        },
-        Edge: {
-          lineWidth: 1,
-          color: "#088"
-        },
-        onBeforeCompute: function (node) {
-          Log.write("centering");
-        },
-        //Attach event handlers and add text to the
-        //labels. This method is only triggered on label
-        //creation
-        onCreateLabel: function (domElement, node) {
-          domElement.innerHTML = node.name;
-          $jit.util.addEvent(domElement, 'click', function () {
-            ht.onClick(node.id, {
-              onComplete: function () {
-                ht.controller.onComplete();
-              }
-            });
-          });
-        },
-        //Change node styles when labels are placed
-        //or moved.
-        onPlaceLabel: function (domElement, node) {
-          var style = domElement.style;
-          style.display = '';
-          style.cursor = 'pointer';
-          if (node._depth <= 1) {
-            style.fontSize = "0.8em";
-            style.color = "#ddd";
-
-          } else {
-            style.fontSize = "0.7em";
-            style.color = "#555";
-
+        var data = json.diagram.elements;
+        var traverseData = function (data) {
+          if (!data || !data.title) {
+            return;
           }
+          data.name = data.title;
+          data.children.forEach(function (child) {
+            traverseData(child);
+          });
+        };
+        traverseData(data);
 
-          var left = parseInt(style.left);
-          var w = domElement.offsetWidth;
-          style.left = (left - w / 2) + 'px';
-        },
+        var ht = new $jit.Hypertree({
+          //id of the visualization container
+          injectInto: 'infovis',
+          //Add navigation capabilities:
+          //zooming by scrolling and panning.
+          Navigation: {
+            enable: true,
+            panning: true,
+            zooming: 10
+          },
+          //Change node and edge styles such as
+          //color, width and dimensions.
+          Node: {
+            dim: 9,
+            color: "#f00"
+          },
+          Edge: {
+            lineWidth: 1,
+            color: "#088"
+          },
+          onBeforeCompute: function (node) {
+            Log.write("centering");
+          },
+          //Attach event handlers and add text to the
+          //labels. This method is only triggered on label
+          //creation
+          onCreateLabel: function (domElement, node) {
+            domElement.innerHTML = node.name;
+            $jit.util.addEvent(domElement, 'click', function () {
+              ht.onClick(node.id, {
+                onComplete: function () {
+                  ht.controller.onComplete();
+                }
+              });
+            });
+          },
+          //Change node styles when labels are placed
+          //or moved.
+          onPlaceLabel: function (domElement, node) {
+            var style = domElement.style;
+            style.display = '';
+            style.cursor = 'pointer';
+            if (node._depth <= 1) {
+              style.fontSize = "0.8em";
+              style.color = "#ddd";
 
-        onComplete: function () {
-          Log.write("done");
-        }
-      });
-//load JSON data.
-      ht.loadJSON(json);
-//compute positions and plot.
-      ht.refresh();
+            } else {
+              style.fontSize = "0.7em";
+              style.color = "#555";
 
-    });
+            }
+
+            var left = parseInt(style.left);
+            var w = domElement.offsetWidth;
+            style.left = (left - w / 2) + 'px';
+          },
+
+          onComplete: function () {
+            Log.write("done");
+          }
+        });
+        ht.loadJSON(data);
+        ht.refresh();
+      }
+    }
+  };
+  xhr.open('get','json/' + jsonName + '.json',true);
+  xhr.send(null);
 }
 
 var activeLink = function (jsonName) {
@@ -110,16 +109,15 @@ var activeLink = function (jsonName) {
   }
 };
 
+window.onload = function () {
+  var jsonName = location.hash.slice(1) || 'beginning-html';
+  activeLink(jsonName);
+  init(jsonName);
+};
+
 document.querySelector("#nav")
   .addEventListener('click', function (e) {
     var jsonName = e.target.href.split('#')[1] || 'beginning-html';
     activeLink(jsonName);
     init(jsonName);
   }, false);
-
-
-window.onload = function () {
-  var jsonName = location.hash.slice(1) || 'beginning-html';
-  activeLink(jsonName);
-  init(jsonName);
-};
