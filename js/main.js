@@ -10,6 +10,7 @@ var Log = {
 
 
 function init(jsonName) {
+  document.querySelector("#infovis").innerHTML = '';
   fetch('json/' + jsonName + '.json')
     .then(function (res) {
       return res.json();
