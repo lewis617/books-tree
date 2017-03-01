@@ -100,11 +100,11 @@ function init(jsonName) {
     });
 }
 
-var activeLink = function (bookname) {
+var activeLink = function (jsonName) {
   var linkList = document.querySelectorAll("a");
   for (var i = 0; i < linkList.length; i++) {
     linkList[i].removeAttribute('class');
-    if (linkList[i].getAttribute('href') === '#' + bookname) {
+    if (linkList[i].getAttribute('href') === '#' + jsonName) {
       linkList[i].className = 'active';
     }
   }
@@ -112,14 +112,14 @@ var activeLink = function (bookname) {
 
 document.querySelector("#nav")
   .addEventListener('click', function (e) {
-    var bookname = e.target.href.split('#')[1] || 'beginning-html';
-    activeLink(bookname);
-    init(bookname);
+    var jsonName = e.target.href.split('#')[1] || 'beginning-html';
+    activeLink(jsonName);
+    init(jsonName);
   }, false);
 
 
 window.onload = function () {
-  var bookname = location.hash.slice(1) || 'beginning-html';
-  activeLink(bookname);
-  init(bookname);
+  var jsonName = location.hash.slice(1) || 'beginning-html';
+  activeLink(jsonName);
+  init(jsonName);
 };
