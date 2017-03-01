@@ -91,17 +91,7 @@ function init(jsonName) {
           }
         });
         ht.loadJSON(data);
-        //trigger small animation
-        ht.graph.eachNode(function(n) {
-          var pos = n.getPos();
-          pos.setc(200, 200);
-        });
-        ht.compute('end');
-        ht.fx.animate({
-          modes:['polar'],
-          duration: 2000
-        });
-        // ht.refresh();
+        ht.refresh();
       }
     }
   };
