@@ -100,10 +100,26 @@ function init(jsonName) {
     });
 }
 
-document.querySelector("#left-container")
-  .addEventListener('click', function (e) {
-    var classList = e.target.classList;
-    if (classList[0] === 'book-link') {
-      init(classList[1]);
+var activeLink = function (bookname) {
+  var linkList = document.querySelectorAll("a");
+  for (var i = 0; i < linkList.length; i++) {
+    linkList[i].removeAttribute('class');
+    if (linkList[i].getAttribute('href') === '#' + bookname) {
+      linkList[i].className = 'active';
     }
+  }
+};
+
+document.querySelector("#nav")
+  .addEventListener('click', function (e) {
+    var bookname = e.target.href.split('#')[1] || 'beginning-html';
+    activeLink(bookname);
+    init(bookname);
   }, false);
+
+
+window.onload = function () {
+  var bookname = location.hash.slice(1) || 'beginning-html';
+  activeLink(bookname);
+  init(bookname);
+};
