@@ -1,3 +1,22 @@
+var urlParams;
+(window.onpopstate = function () {
+  var match,
+    pl = /\+/g,  // Regex for replacing addition symbol with a space
+    search = /([^&=]+)=?([^&]*)/g,
+    decode = function (s) {
+      return decodeURIComponent(s.replace(pl, " "));
+    },
+    query = window.location.search.substring(1);
+
+  urlParams = {};
+  while (match = search.exec(query))
+    urlParams[decode(match[1])] = decode(match[2]);
+})();
+
+if (urlParams.hideMenu) {
+  document.querySelector("#nav").style.display = 'none';
+}
+
 var Log = {
   elem: false,
   write: function (text) {
@@ -12,9 +31,9 @@ var Log = {
 function init(jsonName) {
   document.querySelector("#infovis").innerHTML = '';
   var xhr = new XMLHttpRequest();
-  xhr.onreadystatechange=function () {
-    if(xhr.readyState==4){
-      if((xhr.status >=200 && xhr.status<300) ||xhr.status ==304){
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState == 4) {
+      if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
         var json = JSON.parse(xhr.responseText);
 
         var data = json.diagram.elements;
@@ -95,7 +114,7 @@ function init(jsonName) {
       }
     }
   };
-  xhr.open('get','json/' + jsonName + '.json',true);
+  xhr.open('get', 'json/' + jsonName + '.json', true);
   xhr.send(null);
 }
 
@@ -111,8 +130,10 @@ var activeLink = function (jsonName) {
 
 window.onload = function () {
   var jsonName = location.hash.slice(1) || 'beginning-html';
-  activeLink(jsonName);
-  init(jsonName);
+  setTimeout(function () {
+    activeLink(jsonName);
+    init(jsonName);
+  }, parseInt(urlParams.lazy) || 0)
 };
 
 document.querySelector("#nav")
